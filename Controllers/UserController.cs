@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ApiUser.Entities;
+using ApiUser.Entities.Request;
+using ApiUser.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ApiUser.Controllers
 {
@@ -6,22 +9,37 @@ namespace ApiUser.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
+        private readonly IUserService _service;
+
+        public UserController(IUserService service)
+        {
+            _service = service;
+        }
+
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok();
+            List<User> users = _service.Get();
+            return Ok(users);
         }
 
-        [HttpGet]
+        [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            return Ok();
+            User user = _service.GetById(id);
+
+            if(user is null)
+                return NotFound();
+
+            return Ok(user);
         }
 
         [HttpPost]
-        public IActionResult Create()
+        public IActionResult Create([FromBody] CreateUserRequest request)
         {
-            return Create();
+            _service.Create(request);
+
+            return Created();
         }
     }
 }
